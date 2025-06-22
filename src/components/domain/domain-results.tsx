@@ -1,63 +1,57 @@
-// components/domain/domain-results.tsx
 "use client";
 
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { CheckCircle, XCircle } from "lucide-react";
-import { DomainAvailability, domainService, DomainSuggestion } from "@/services/domain.services";
+import DomainResultsSkeleton from "./domain-results-skeleton";
+import { DomainAvailability, DomainSuggestion, domainService } from "@/services/domain.services";
+
+interface CombinedResults {
+  results: DomainAvailability[];
+  suggestions: DomainSuggestion[];
+}
+
+async function fetchDomainData(query: string): Promise<CombinedResults> {
+  const cleanQuery = query.split(".")[0].toLowerCase().trim();
+  if (!cleanQuery) throw new Error("Invalid query");
+
+  const tlds = ["com", "net", "org", "io", "co", "app", "dev"];
+  const [results, suggestions] = await Promise.all([
+    domainService.searchDomains(cleanQuery, tlds),
+    domainService.getDomainSuggestions(cleanQuery, 5),
+  ]);
+
+  return { results, suggestions };
+}
 
 export default function DomainResults({ query }: { query: string }) {
-  const [results, setResults] = useState<DomainAvailability[]>([]);
-  const [suggestions, setSuggestions] = useState<DomainSuggestion[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const {
+    data,
+    isLoading,
+    isError,
+    error,
+  } = useQuery({
+    queryKey: ["domain-search", query],
+    queryFn: () => fetchDomainData(query),
+    enabled: !!query, // only run if query exists
+  });
 
-  useEffect(() => {
-    async function fetchDomains() {
-      setLoading(true);
-      setError(null);
-      try {
-        // Clean query (remove TLD if present, e.g., "example.com" -> "example")
-        const cleanQuery = query.split(".")[0].toLowerCase().trim();
-        if (!cleanQuery) {
-          throw new Error("Invalid query");
-        }
+  if (isLoading) return <DomainResultsSkeleton />;
 
-        // Default TLDs to check
-        const tlds = ["com", "net", "org", "io", "co", "app", "dev"];
-
-        // Fetch primary search results
-        const searchResults = await domainService.searchDomains(cleanQuery, tlds);
-        setResults(searchResults);
-
-        // Fetch suggestions (optional, for GoDaddy-like experience)
-        const suggestionResults = await domainService.getDomainSuggestions(cleanQuery, 5);
-        setSuggestions(suggestionResults);
-      } catch (err) {
-        setError("Failed to fetch domain results. Please try again.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-
-    if (query) {
-      fetchDomains();
-    }
-  }, [query]);
-
-  if (loading) {
-    return <div>Loading...</div>; // Handled by Suspense fallback in parent
+  if (isError) {
+    return (
+      <div className="text-center py-8 text-red-500">
+        {(error as Error)?.message || "Failed to fetch domain results."}
+      </div>
+    );
   }
 
-  if (error) {
-    return <div className="text-center py-8 text-red-500">{error}</div>;
-  }
+  const { results, suggestions } = data!;
 
   return (
     <div className="space-y-4">
-      {/* Primary Search Results */}
+      {/* Primary Results */}
       {results.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold mb-2">Primary Results</h3>

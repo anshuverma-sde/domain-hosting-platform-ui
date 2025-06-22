@@ -1,5 +1,4 @@
 // services/auth.service.ts
-import { API_BASE_URL } from "@/config/env";
 import axiosInstance from "@/lib/axios";
 
 export interface LoginCredentials {
@@ -35,7 +34,7 @@ export interface ResetPasswordData {
 }
 
 class AuthService {
-  private baseUrl = `${API_BASE_URL}/api/auth`;
+  private baseUrl = `/api/auth`;
 
   async register(data: RegisterData): Promise<AuthResponse> {
     const response = await axiosInstance.post<AuthResponse>(`${this.baseUrl}/register`, data);

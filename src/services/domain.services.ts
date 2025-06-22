@@ -1,4 +1,3 @@
-import { API_BASE_URL } from "@/config/env";
 import axiosInstance from "@/lib/axios";
 
 // Define interfaces for API response data
@@ -30,7 +29,7 @@ export interface PopularTld {
 }
 
 class DomainService {
-  private baseUrl = `${API_BASE_URL}/api/domains`;
+  private baseUrl = `/api/domains`;
 
   /**
    * Search for domain availability by keyword

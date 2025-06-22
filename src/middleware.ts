@@ -9,6 +9,7 @@ const PUBLIC_ROUTES = [
   "/auth/signup",
   "/auth/forgot-password",
   "/auth/reset-password",
+  "/domains/search"
 ];
 
 // Define role-based routes and their allowed roles

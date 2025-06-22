@@ -1,5 +1,4 @@
 // services/user.service.ts
-import { API_BASE_URL } from "@/config/env";
 import axiosInstance from "@/lib/axios";
 
 export interface UserData {
@@ -24,7 +23,7 @@ export interface ChangePasswordData {
 }
 
 class UserService {
-  private baseUrl = `${API_BASE_URL}/api/users`;
+  private baseUrl = `/api/users`;
 
   async getProfile(): Promise<UserData> {
     const response = await axiosInstance.get<UserData>(`${this.baseUrl}/profile`);
