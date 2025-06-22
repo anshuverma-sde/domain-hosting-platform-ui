@@ -1,29 +1,36 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { useRouter } from "next/navigation"
-import { Button } from "@/components/ui/button"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
-import { Input } from "@/components/ui/input"
-import { useToast } from "@/components/ui/use-toast"
-import { zodResolver } from "@hookform/resolvers/zod"
-import { useForm } from "react-hook-form"
-import * as z from "zod"
-import { Github, Mail } from "lucide-react"
+import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import { Github, Mail, Loader2 } from "lucide-react";
+import { useAuth } from "@/hooks/useAuth";
+import toast from "react-hot-toast";
 
 const formSchema = z.object({
-  email: z.string().email({
-    message: "Please enter a valid email address.",
-  }),
-  password: z.string().min(8, {
-    message: "Password must be at least 8 characters.",
-  }),
-})
+  email: z.string().email("Enter a valid email."),
+  password: z.string().min(8, "Password must be at least 8 characters."),
+});
 
 export function LoginForm() {
-  const [isLoading, setIsLoading] = useState(false)
-  const router = useRouter()
-  const { toast } = useToast()
+  const router = useRouter();
+  const {
+    login,
+    loginWithGithub,
+    loginWithGoogle,
+    isLoading: isAuthLoading,
+  } = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -31,32 +38,23 @@ export function LoginForm() {
       email: "",
       password: "",
     },
-  })
+  });
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true)
-
-    try {
-      // This would be an API call to your backend
-      await new Promise((resolve) => setTimeout(resolve, 1000))
-
-      // Simulate successful login
-      toast({
-        title: "Login successful",
-        description: "Redirecting to dashboard...",
-      })
-
-      router.push("/dashboard")
-    } catch (error) {
-      toast({
-        title: "Login failed",
-        description: "Please check your credentials and try again.",
-        variant: "destructive",
-      })
-    } finally {
-      setIsLoading(false)
-    }
-  }
+  const onSubmit = (values: z.infer<typeof formSchema>) => {
+    login(values, {
+      onSuccess: (res: any) => {
+        if (res?.error) {
+          toast.error(res?.error ?? 'Login failed');
+        } else {
+          toast.success("Login successful");
+          router.push("/dashboard");
+        }
+      },
+      onError: () => {        
+        toast.error("Login failed");
+      },
+    });
+  };
 
   return (
     <div className="grid gap-6">
@@ -69,7 +67,7 @@ export function LoginForm() {
               <FormItem>
                 <FormLabel>Email</FormLabel>
                 <FormControl>
-                  <Input placeholder="name@example.com" {...field} />
+                  <Input placeholder="you@example.com" {...field} disabled={isAuthLoading} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
@@ -82,35 +80,56 @@ export function LoginForm() {
               <FormItem>
                 <FormLabel>Password</FormLabel>
                 <FormControl>
-                  <Input type="password" placeholder="••••••••" {...field} />
+                  <Input type="password" placeholder="••••••••" {...field} disabled={isAuthLoading} />
                 </FormControl>
                 <FormMessage />
               </FormItem>
             )}
           />
-          <Button type="submit" className="w-full" disabled={isLoading}>
-            {isLoading ? "Logging in..." : "Login"}
+          <Button type="submit" className="w-full" disabled={isAuthLoading}>
+            {isAuthLoading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Logging in...
+              </>
+            ) : (
+              "Login"
+            )}
           </Button>
         </form>
       </Form>
+
       <div className="relative">
         <div className="absolute inset-0 flex items-center">
           <span className="w-full border-t" />
         </div>
         <div className="relative flex justify-center text-xs uppercase">
-          <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
+          <span className="bg-background px-2 text-muted-foreground">
+            Or continue with
+          </span>
         </div>
       </div>
+
       <div className="grid grid-cols-2 gap-4">
-        <Button variant="outline" type="button" disabled={isLoading}>
+        <Button
+          variant="outline"
+          type="button"
+          onClick={() => loginWithGithub()}
+          disabled={isAuthLoading}
+        >
           <Github className="mr-2 h-4 w-4" />
           GitHub
         </Button>
-        <Button variant="outline" type="button" disabled={isLoading}>
+        <Button
+          variant="outline"
+          type="button"
+          onClick={() => loginWithGoogle()}
+          disabled={isAuthLoading}
+        >
           <Mail className="mr-2 h-4 w-4" />
           Google
         </Button>
       </div>
     </div>
-  )
+  );
 }

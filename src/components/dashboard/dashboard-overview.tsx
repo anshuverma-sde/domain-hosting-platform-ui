@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 import { Globe, Server, CreditCard, Calendar, TrendingUp } from "lucide-react"
 import { motion } from "framer-motion"
+import { useAuth } from "@/hooks/useAuth"
 
 const fadeInUp = {
   initial: { opacity: 0, y: 60 },
@@ -21,12 +22,14 @@ const staggerContainer = {
   },
 }
 
-export default function DashboardOverview({ user }: { user: { name: string; email: string } }) {
+export default function DashboardOverview() {
+    const {user} = useAuth()
+
   return (
     <div className="space-y-6">
       {/* Welcome Section */}
       <motion.div initial={{ opacity: 0, y: 50 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-        <h1 className="text-3xl font-bold">Welcome back, {user.name}!</h1>
+        <h1 className="text-3xl font-bold">Welcome back, {user?.firstName}!</h1>
         <p className="text-muted-foreground">Here's an overview of your account and services.</p>
       </motion.div>
 

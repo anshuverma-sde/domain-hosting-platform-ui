@@ -1,14 +1,15 @@
-import { Suspense } from "react"
-import { SearchDomains } from "@/features/domains/components"
-import DomainResults from "@/components/domain/domain-results"
-import DomainResultsSkeleton from "@/components/domain/domain-results-skeleton"
+// app/domains/search/page.tsx
+import { Suspense } from "react";
+import { SearchDomains } from "@/features/domains/components";
+import DomainResults from "@/components/domain/domain-results";
+import DomainResultsSkeleton from "@/components/domain/domain-results-skeleton";
 
 export default async function DomainSearchPage({
   searchParams,
 }: {
-  searchParams: { query?: string }
+  searchParams: { query?: string };
 }) {
-  const query = (await searchParams).query || ""
+  const query = (await searchParams).query || "";
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -37,5 +38,5 @@ export default async function DomainSearchPage({
         </div>
       )}
     </div>
-  )
+  );
 }
