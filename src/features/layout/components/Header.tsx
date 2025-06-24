@@ -1,9 +1,9 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import Link from "next/link"
-import { Button } from "@/components/ui/button"
-import { ModeToggle } from "@/components/mode-toggle"
+import { useState } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { ModeToggle } from "@/components/mode-toggle";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,12 +12,28 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
   navigationMenuTriggerStyle,
-} from "@/components/ui/navigation-menu"
-import { Menu, X } from "lucide-react"
-import { theme } from "@/config/theme"
+} from "@/components/ui/navigation-menu";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Menu, X, ShoppingCart, User } from "lucide-react";
+import { theme } from "@/config/theme";
+import { useAuth } from "@/hooks/useAuth";
+import { useRouter } from "next/navigation";
 
 export const Header = () => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false)
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const { isAuthenticated, logout, status } = useAuth();
+  const router = useRouter();
+
+  const handleLogout = () => {
+    logout(); // Ensure logout completes
+    router.push("/"); // Redirect to login
+
+  };
 
   return (
     <header className="border-b bg-background sticky top-0 z-40">
@@ -25,7 +41,7 @@ export const Header = () => {
         <div className="flex h-16 items-center justify-between">
           <div className="flex items-center">
             <Link href="/" className="text-2xl font-bold" style={{ color: theme.colors.primary }}>
-              DomainHost<span style={{ color: '#3b82f6' }}>Pro</span>
+              DomainHost<span style={{ color: "#3b82f6" }}>Pro</span>
             </Link>
           </div>
 
@@ -168,16 +184,67 @@ export const Header = () => {
           <div className="flex items-center space-x-4">
             <div className="hidden md:flex items-center space-x-2">
               <ModeToggle />
-              <Button variant="outline" size="sm" asChild>
-                <Link href="/auth/login">Login</Link>
-              </Button>
-              <Button 
-                size="sm" 
-                asChild
-                style={{ backgroundColor: theme.colors.primary }}
-              >
-                <Link href="/auth/signup">Sign Up</Link>
-              </Button>
+              {status !== "loading" && (
+                isAuthenticated ? (
+                  <>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="icon" className="rounded-full">
+                          <User className="h-5 w-5" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem>
+                          <Link href="/dashboard" className="w-full">
+                            Dashboard
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Link href="/account/products" className="w-full">
+                            My Products
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Link href="/account/billing" className="w-full">
+                            Renewals & Billing
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Link href="/account/settings" className="w-full">
+                            Account Settings
+                          </Link>
+                        </DropdownMenuItem>
+                        <DropdownMenuItem onClick={handleLogout}>
+                          Logout
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                    <Button variant="outline" size="icon" asChild>
+                      <Link href="/cart">
+                        <ShoppingCart className="h-5 w-5" />
+                      </Link>
+                    </Button>
+                  </>
+                ) : (
+                  <>
+                    <Button variant="outline" size="sm" asChild>
+                      <Link href="/auth/login">Login</Link>
+                    </Button>
+                    <Button
+                      size="sm"
+                      asChild
+                      style={{ backgroundColor: theme.colors.primary }}
+                    >
+                      <Link href="/auth/signup">Sign Up</Link>
+                    </Button>
+                    <Button variant="outline" size="icon" asChild>
+                      <Link href="/cart">
+                        <ShoppingCart className="h-5 w-5" />
+                      </Link>
+                    </Button>
+                  </>
+                )
+              )}
             </div>
 
             {/* Mobile menu button */}
@@ -220,24 +287,74 @@ export const Header = () => {
               Support
             </Link>
             <div className="pt-4 pb-3 border-t border-gray-200 dark:border-gray-700">
-              <div className="flex items-center px-3">
-                <Button variant="outline" className="w-full mb-2" asChild>
-                  <Link href="/auth/login">Login</Link>
-                </Button>
-              </div>
-              <div className="flex items-center px-3">
-                <Button 
-                  className="w-full" 
-                  asChild
-                  style={{ backgroundColor: theme.colors.primary }}
-                >
-                  <Link href="/auth/signup">Sign Up</Link>
-                </Button>
+              <div className="flex items-center px-3 flex-col space-y-2">
+                {status !== "loading" && (
+                  isAuthenticated ? (
+                    <>
+                      <Link
+                        href="/dashboard"
+                        className="block px-3 py-2 rounded-md text-base font-medium hover:bg-accent w-full text-center"
+                      >
+                        Dashboard
+                      </Link>
+                      <Link
+                        href="/account/products"
+                        className="block px-3 py-2 rounded-md text-base font-medium hover:bg-accent w-full text-center"
+                      >
+                        My Products
+                      </Link>
+                      <Link
+                        href="/account/billing"
+                        className="block px-3 py-2 rounded-md text-base font-medium hover:bg-accent w-full text-center"
+                      >
+                        Renewals & Billing
+                      </Link>
+                      <Link
+                        href="/account/settings"
+                        className="block px-3 py-2 rounded-md text-base font-medium hover:bg-accent w-full text-center"
+                      >
+                        Account Settings
+                      </Link>
+                      <Button
+                        variant="outline"
+                        className="w-full mb-2"
+                        onClick={handleLogout}
+                      >
+                        Logout
+                      </Button>
+                      <Link
+                        href="/cart"
+                        className="block px-3 py-2 rounded-md text-base font-medium hover:bg-accent w-full text-center"
+                      >
+                        Cart
+                      </Link>
+                    </>
+                  ) : (
+                    <>
+                      <Button variant="outline" className="w-full mb-2" asChild>
+                        <Link href="/auth/login">Login</Link>
+                      </Button>
+                      <Button
+                        className="w-full"
+                        asChild
+                        style={{ backgroundColor: theme.colors.primary }}
+                      >
+                        <Link href="/auth/signup">Sign Up</Link>
+                      </Button>
+                      <Link
+                        href="/cart"
+                        className="block px-3 py-2 rounded-md text-base font-medium hover:bg-accent w-full text-center"
+                      >
+                        Cart
+                      </Link>
+                    </>
+                  )
+                )}
               </div>
             </div>
           </div>
         </div>
       )}
     </header>
-  )
-} 
+  );
+};

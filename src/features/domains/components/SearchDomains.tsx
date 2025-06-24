@@ -1,24 +1,24 @@
-"use client"
+// features/domains/components/SearchDomains.tsx
+"use client";
 
-import type React from "react"
-
-import { useState } from "react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { useRouter } from "next/navigation"
-import { Search } from "lucide-react"
-import { theme } from "@/config/theme"
+import type React from "react";
+import { useState } from "react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
+import { Search } from "lucide-react";
+import { theme } from "@/config/theme";
 
 export function SearchDomains() {
-  const [domain, setDomain] = useState("")
-  const router = useRouter()
+  const [domain, setDomain] = useState("");
+  const router = useRouter();
 
   const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault()
+    e.preventDefault();
     if (domain.trim()) {
-      router.push(`/domains/search?query=${encodeURIComponent(domain.trim())}`)
+      router.push(`/domains/search?query=${encodeURIComponent(domain.trim())}`);
     }
-  }
+  };
 
   return (
     <form onSubmit={handleSearch} className="flex w-full max-w-2xl mx-auto">
@@ -37,10 +37,10 @@ export function SearchDomains() {
       <Button
         type="submit"
         className="h-14 px-8 text-lg font-medium rounded-l-none"
-        style={{ backgroundColor: theme.colors.primary, color: 'white' }}
+        style={{ backgroundColor: theme.colors.primary, color: "white" }}
       >
         Search
       </Button>
     </form>
-  )
-} 
+  );
+}
