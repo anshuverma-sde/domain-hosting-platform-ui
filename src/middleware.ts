@@ -22,17 +22,17 @@ export async function middleware(request: NextRequest) {
   const response = NextResponse.next();
 
   // Set Security Headers
-  response.headers.set("X-Frame-Options", "DENY");
-  response.headers.set("X-Content-Type-Options", "nosniff");
-  response.headers.set("Referrer-Policy", "origin-when-cross-origin");
-  response.headers.set("X-XSS-Protection", "1; mode=block");
+  // response.headers.set("X-Frame-Options", "DENY");
+  // response.headers.set("X-Content-Type-Options", "nosniff");
+  //response.headers.set("Referrer-Policy", "origin-when-cross-origin");
+  // response.headers.set("X-XSS-Protection", "1; mode=block");
 
-  const isDev = process.env.NODE_ENV === "development";
-  const csp = isDev
-    ? "default-src 'self'; connect-src 'self' http://localhost:5000; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"
-    : "default-src 'self'; connect-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self';";
+  // const isDev = process.env.NODE_ENV === "development";
+  // const csp = isDev
+  //   ? "default-src 'self'; connect-src 'self' http://localhost:5000; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:;"
+  //   : "default-src 'self'; connect-src 'self'; script-src 'self'; style-src 'self'; img-src 'self'; font-src 'self';";
 
-  response.headers.set("Content-Security-Policy", csp);
+  // response.headers.set("Content-Security-Policy", csp);
 
   // Allow public routes without authentication
   if (PUBLIC_ROUTES.includes(pathname)) {
